@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Parksys Security</string>
+    <string name="security_banner">この端末はParksysセキュリティポリシーにより保護されています</string>
+    <string name="admin_description">業務端末のセキュリティ保護と管理を行います</string>
+    <string name="setup_complete">セットアップ完了</string>
+    <string name="security_active">セキュリティ保護: 有効</string>
+</resources>
