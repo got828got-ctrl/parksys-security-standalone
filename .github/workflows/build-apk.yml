@@ -22,13 +22,22 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         
-      - name: Generate Gradle Wrapper
+      - name: Create Gradle Wrapper
         run: |
-          gradle wrapper --gradle-version 8.2
-          chmod +x gradlew
+          cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
+          distributionBase=GRADLE_USER_HOME
+          distributionPath=wrapper/dists
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.2-bin.zip
+          zipStoreBase=GRADLE_USER_HOME
+          zipStorePath=wrapper/dists
+          EOF
+          mkdir -p gradle/wrapper
           
       - name: Create Release Keystore
         run: |
@@ -44,10 +53,10 @@ jobs:
             -dname "CN=Parksys Security, OU=Security Division, O=Parksys Co. Ltd., L=Tokyo, ST=Tokyo, C=JP"
         
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace --info
+        run: gradle assembleDebug --stacktrace --info
         
       - name: Build Release APK
-        run: ./gradlew assembleRelease --stacktrace
+        run: gradle assembleRelease --stacktrace
         env:
           KEYSTORE_PASSWORD: parksys2024
           KEY_PASSWORD: parksys2024
