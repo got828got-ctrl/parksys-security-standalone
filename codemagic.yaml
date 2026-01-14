@@ -7,7 +7,7 @@ workflows:
       app_store_connect: "iOS署名用"
     environment:
       ios_signing:
-        distribution_type: ad_hoc
+        distribution_type: development
         bundle_identifier: com.privateprotect
       vars:
         XCODE_PROJECT: "ios_monitoring_app/PrivacyProtect.xcodeproj"
@@ -20,9 +20,8 @@ workflows:
       - name: Fetch signing files
         script: |
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_ADHOC \
-            --create \
-            --certificate-key=@file:$APP_STORE_CONNECT_PRIVATE_KEY
+            --type IOS_APP_DEVELOPMENT \
+            --create
       - name: Add certificates
         script: keychain add-certificates
       - name: Set signing settings
