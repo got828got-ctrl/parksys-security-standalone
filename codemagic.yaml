@@ -36,6 +36,8 @@ workflows:
       - name: Export IPA
         script: |
           xcode-project build-ipa \
+            --project $XCODE_PROJECT \
+            --scheme $XCODE_SCHEME \
             --archive-directory build/PrivacyProtect.xcarchive
     artifacts:
       - build/ios/ipa/*.ipa
