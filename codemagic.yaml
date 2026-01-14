@@ -3,6 +3,7 @@ workflows:
     name: iOS Build
     max_build_duration: 60
     instance_type: mac_mini_m2
+    working_directory: ios_monitoring_app
     integrations:
       app_store_connect: "iOS署名用"
     environment:
@@ -12,41 +13,30 @@ workflows:
         XCODE_PROJECT: "PrivacyProtect.xcodeproj"
         XCODE_SCHEME: "PrivacyProtect"
         BUNDLE_ID: "com.privateprotect"
-        APP_NAME: "Complete privacy protection"
       xcode: latest
     scripts:
       - name: Set up keychain
-        script: |
-          keychain initialize
+        script: keychain initialize
       - name: Fetch signing files
         script: |
           app-store-connect fetch-signing-files $BUNDLE_ID \
             --type IOS_APP_DEVELOPMENT \
             --create
       - name: Add certificates to keychain
-        script: |
-          keychain add-certificates
+        script: keychain add-certificates
       - name: Set up code signing settings
-        script: |
-          xcode-project use-profiles
+        script: xcode-project use-profiles
       - name: Build iOS App
         script: |
           xcodebuild archive \
             -project $XCODE_PROJECT \
             -scheme $XCODE_SCHEME \
             -archivePath build/PrivacyProtect.xcarchive \
-            -destination "generic/platform=iOS" \
-            CODE_SIGN_STYLE=Manual
+            -destination "generic/platform=iOS"
       - name: Export IPA
         script: |
           xcode-project build-ipa \
             --archive build/PrivacyProtect.xcarchive
     artifacts:
-      - build/ios/ipa/*.ipa
-      - build/*.xcarchive
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: main
-          include: true
+      - ios_monitoring_app/build/ios/ipa/*.ipa
+      - ios_monitoring_app/build/*.xcarchive
