@@ -13,7 +13,6 @@ workflows:
         XCODE_PROJECT: "ios_monitoring_app/PrivacyProtect.xcodeproj"
         XCODE_SCHEME: "PrivacyProtect"
         BUNDLE_ID: "com.privateprotect"
-        APP_NAME: "Complete privacy protection"
       xcode: latest
     scripts:
       - name: Set up keychain
@@ -22,20 +21,19 @@ workflows:
         script: |
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_ADHOC \
-            --create
+            --create \
+            --certificate-key=@file:$APP_STORE_CONNECT_PRIVATE_KEY
       - name: Add certificates
         script: keychain add-certificates
       - name: Set signing settings
         script: xcode-project use-profiles
       - name: Build iOS App
         script: |
-          xcodebuild build \
+          xcodebuild archive \
             -project $XCODE_PROJECT \
             -scheme $XCODE_SCHEME \
-            -sdk iphoneos \
-            -configuration Release \
             -archivePath build/PrivacyProtect.xcarchive \
-            archive
+            -destination "generic/platform=iOS"
       - name: Export IPA
         script: |
           xcode-project build-ipa \
