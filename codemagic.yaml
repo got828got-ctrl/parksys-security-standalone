@@ -3,7 +3,12 @@ workflows:
     name: iOS Build
     max_build_duration: 60
     instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: Codemagic
     environment:
+      ios_signing:
+        distribution_type: ad_hoc
+        bundle_identifier: com.privateprotect
       vars:
         XCODE_PROJECT: "ios_monitoring_app/PrivacyProtect.xcodeproj"
         XCODE_SCHEME: "PrivacyProtect"
@@ -11,20 +16,35 @@ workflows:
         APP_NAME: "Complete privacy protection"
       xcode: latest
     scripts:
-      - name: Build iOS App (Unsigned)
+      - name: Set up keychain
+        script: keychain initialize
+      - name: Fetch signing files
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_ADHOC \
+            --create
+      - name: Use signing profiles
+        script: keychain add-certificates
+      - name: Set signing settings
+        script: xcode-project use-profiles
+      - name: Build iOS App
         script: |
           xcodebuild build \
             -project $XCODE_PROJECT \
             -scheme $XCODE_SCHEME \
-            -sdk iphonesimulator \
-            -destination "generic/platform=iOS Simulator" \
+            -sdk iphoneos \
             -configuration Release \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+            -archivePath build/PrivacyProtect.xcarchive \
+            archive
+      - name: Export IPA
+        script: |
+          xcodebuild -exportArchive \
+            -archivePath build/PrivacyProtect.xcarchive \
+            -exportPath build/ipa \
+            -exportOptionsPlist ~/export_options.plist
     artifacts:
-      - build/**/*.app
-      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+      - build/ipa/*.ipa
+      - build/**/*.xcarchive
     triggering:
       events:
         - push
