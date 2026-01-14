@@ -23,7 +23,7 @@ workflows:
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_ADHOC \
             --create
-      - name: Use signing profiles
+      - name: Add certificates
         script: keychain add-certificates
       - name: Set signing settings
         script: xcode-project use-profiles
@@ -38,12 +38,10 @@ workflows:
             archive
       - name: Export IPA
         script: |
-          xcodebuild -exportArchive \
-            -archivePath build/PrivacyProtect.xcarchive \
-            -exportPath build/ipa \
-            -exportOptionsPlist ~/export_options.plist
+          xcode-project build-ipa \
+            --archive build/PrivacyProtect.xcarchive
     artifacts:
-      - build/ipa/*.ipa
+      - build/ios/ipa/*.ipa
       - build/**/*.xcarchive
     triggering:
       events:
